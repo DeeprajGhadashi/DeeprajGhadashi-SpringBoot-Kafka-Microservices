@@ -15,24 +15,24 @@ public class OrderProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderProducer.class);
 
-
+    private KafkaTemplate<String, OrderEvent> kafkaTemplate;
     private NewTopic topic;
 
-    private KafkaTemplate<String, OrderEvent> kafkaTemplate;
-
-    public OrderProducer(KafkaTemplate<String, OrderEvent> kafkaTemplate) {
-        this.topic = topic;
+    // ✅ Ensure both KafkaTemplate and NewTopic are injected
+    public OrderProducer(KafkaTemplate<String, OrderEvent> kafkaTemplate, NewTopic topic) {
         this.kafkaTemplate = kafkaTemplate;
+        this.topic = topic;
     }
 
     public void sendMessage(OrderEvent event){
       LOGGER.info(String.format("Order event => %s", event.toString()));
 
-      //create message
+        // ✅ Create message with topic header
         Message<OrderEvent> message = MessageBuilder
                 .withPayload(event)
                 .setHeader(KafkaHeaders.TOPIC, topic.name())
                 .build();
+
         kafkaTemplate.send(message);
     }
 
